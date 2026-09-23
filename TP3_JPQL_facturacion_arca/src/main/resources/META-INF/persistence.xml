@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence xmlns="http://xmlns.jcp.org/xml/ns/persistence"
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+             xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence
+             http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd"
+             version="2.2">
+
+    <persistence-unit name="FacturacionPU" transaction-type="RESOURCE_LOCAL">
+
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+
+        <!-- Entidades del dominio -->
+        <class>com.facturacion.model.Usuario</class>
+        <class>com.facturacion.model.PuntoVenta</class>
+        <class>com.facturacion.model.TipoMoneda</class>
+        <class>com.facturacion.model.Rubro</class>
+        <class>com.facturacion.model.Marca</class>
+        <class>com.facturacion.model.Articulo</class>
+        <class>com.facturacion.model.ListaPrecio</class>
+        <class>com.facturacion.model.ListaPrecioArticulo</class>
+        <class>com.facturacion.model.FacturaVenta</class>
+        <class>com.facturacion.model.FacturaVentaDetalle</class>
+        <class>com.facturacion.model.Contacto</class>
+        <class>com.facturacion.model.Domicilio</class>
+        <class>com.facturacion.model.CondicionIva</class>
+        <class>com.facturacion.model.Cliente</class>
+
+        <exclude-unlisted-classes>true</exclude-unlisted-classes>
+
+        <properties>
+            <!-- Conexion a PostgreSQL (cambiar base/usuario/clave si en tu maquina son otros) -->
+            <property name="javax.persistence.jdbc.driver" value="org.postgresql.Driver"/>
+            <property name="javax.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/facturacion_arca"/>
+            <property name="javax.persistence.jdbc.user" value="postgres"/>
+            <property name="javax.persistence.jdbc.password" value="postgres"/>
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQL10Dialect"/>
+
+            <!-- Propiedades de Hibernate -->
+            <property name="hibernate.show_sql" value="false"/>
+            <property name="hibernate.format_sql" value="true"/>
+            <property name="hibernate.hbm2ddl.auto" value="update"/>
+        </properties>
+
+    </persistence-unit>
+</persistence>
