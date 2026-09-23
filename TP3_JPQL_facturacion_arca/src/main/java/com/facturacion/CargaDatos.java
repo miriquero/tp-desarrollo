@@ -7,18 +7,7 @@ import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Date;
 
-/**
- * Carga datos de prueba pensados para que las 20 consultas del TP devuelvan resultados:
- * - 2 usuarios de carga: "mgomez" con 7 facturas (supera el HAVING > 5) y "lperez" con 3.
- * - Puntos de venta 1, 2, 3 y 5 (la consulta IN pide 1, 2, 5 y el 3 queda afuera).
- * - Facturas con importes de las tres categorias (BAJO / MEDIO / ALTO VALOR), estados
- *   distintos (EMITIDA, ANULADA, PENDIENTE) y dos anuladas con fechaAnulacion cargada.
- * - Articulos sin marca (para el LEFT JOIN) y articulos que nunca se vendieron (NOT EXISTS),
- *   y una marca (Bosch) sin articulos vendidos (EXISTS no la trae).
- *
- * Si los datos ya estan cargados (existe el usuario "mgomez") no vuelve a cargarlos,
- * asi se puede correr el programa varias veces sin duplicar nada.
- */
+// datos de prueba para las consultas. si ya estan cargados no hace nada
 public class CargaDatos {
 
     private final EntityManager em;
@@ -53,36 +42,36 @@ public class CargaDatos {
     }
 
     private void cargar() {
-        // ---------- Usuarios ----------
+        // usuarios
         admin = usuario("sistema", "Usuario", "Sistema");
         Usuario mgomez = usuario("mgomez", "Mariana", "Gomez");
         Usuario lperez = usuario("lperez", "Lucas", "Perez");
 
-        // ---------- Puntos de venta ----------
+        // puntos de venta
         PuntoVenta pv1 = puntoVenta(1, "Casa Central");
         PuntoVenta pv2 = puntoVenta(2, "Sucursal Godoy Cruz");
         PuntoVenta pv3 = puntoVenta(3, "Venta Online");
         PuntoVenta pv5 = puntoVenta(5, "Sucursal Maipu");
 
-        // ---------- Rubros y marcas ----------
+        // rubros y marcas
         Rubro electronica = rubro("Electrónica", 1);
         Rubro ferreteria = rubro("Ferretería", 2);
 
         Marca samsung = marca("Samsung", 10);
         Marca philips = marca("Philips", 20);
         Marca stanley = marca("Stanley", 30);
-        Marca bosch = marca("Bosch", 40);   // tiene articulo pero nunca se vende
+        Marca bosch = marca("Bosch", 40); // tiene articulo pero nunca se vende
 
-        // ---------- Articulos ----------
+        // articulos
         Articulo tv = articulo("E-001", "Smart TV 50\"", electronica, samsung);
         Articulo celular = articulo("E-002", "Celular Galaxy A55", electronica, samsung);
         Articulo lampara = articulo("E-003", "Lámpara LED 12W", electronica, philips);
         Articulo auriculares = articulo("E-004", "Auriculares Bluetooth genéricos", electronica, null); // sin marca
         Articulo martillo = articulo("F-001", "Martillo carpintero", ferreteria, stanley);
-        articulo("F-002", "Taladro percutor", ferreteria, bosch);                    // nunca vendido
-        articulo("F-003", "Destornillador plano", ferreteria, null);                 // sin marca y nunca vendido
+        articulo("F-002", "Taladro percutor", ferreteria, bosch); // nunca vendido
+        articulo("F-003", "Destornillador plano", ferreteria, null); // sin marca y nunca vendido
 
-        // ---------- Lista de precios ----------
+        // lista de precios
         ListaPrecio lista = new ListaPrecio();
         lista.setCodigo("LP-01");
         lista.setDenominacion("Lista General");
@@ -95,7 +84,7 @@ public class CargaDatos {
         ListaPrecioArticulo pAuriculares = precio(lista, auriculares, 8000);
         ListaPrecioArticulo pMartillo = precio(lista, martillo, 6000);
 
-        // ---------- Condicion IVA y moneda ----------
+        // condicion iva y moneda
         CondicionIva consumidorFinal = condicionIva(5, "Consumidor Final");
         CondicionIva responsableInscripto = condicionIva(1, "IVA Responsable Inscripto");
 
@@ -106,42 +95,37 @@ public class CargaDatos {
         auditar(pesos);
         em.persist(pesos);
 
-        // ---------- Clientes ----------
+        // clientes
         Cliente cf = cliente("20-00000000-1", "Consumidor Final", "San Martin", "100");
         Cliente andes = cliente("30-71234567-8", "Distribuidora Andes SRL", "Las Heras", "450");
         Cliente juan = cliente("20-31456789-5", "Juan Martínez", "Belgrano", "1220");
         Cliente maria = cliente("27-28987654-3", "María López", "Colón", "75");
 
-        // ---------- Facturas ----------
+        // facturas
         // mgomez: 7 facturas
         factura(1L, fecha(2026, 8, 3), pv1, cf, consumidorFinal, pesos, mgomez, "EMITIDA", null,
-                item(pMartillo, 1));                                    //   6.000 BAJO
+                item(pMartillo, 1));
         factura(2L, fecha(2026, 8, 10), pv1, andes, responsableInscripto, pesos, mgomez, "EMITIDA", null,
-                item(pTv, 1));                                          //  85.000 ALTO
+                item(pTv, 1));
         factura(3L, fecha(2026, 8, 15), pv2, juan, consumidorFinal, pesos, mgomez, "EMITIDA", null,
-                item(pCelular, 1), item(pAuriculares, 1));              //  50.000 MEDIO (borde)
+                item(pCelular, 1), item(pAuriculares, 1));
         factura(4L, fecha(2026, 8, 20), pv2, maria, consumidorFinal, pesos, mgomez, "ANULADA", fecha(2026, 8, 21),
-                item(pLampara, 4));                                     //  14.000 anulada
+                item(pLampara, 4));
         factura(5L, fecha(2026, 8, 28), pv5, andes, responsableInscripto, pesos, mgomez, "EMITIDA", null,
-                item(pTv, 2), item(pLampara, 2));                       // 177.000 ALTO
+                item(pTv, 2), item(pLampara, 2));
         factura(6L, fecha(2026, 9, 2), pv1, cf, consumidorFinal, pesos, mgomez, "EMITIDA", null,
-                item(pAuriculares, 1));                                 //   8.000 BAJO
+                item(pAuriculares, 1));
         factura(7L, fecha(2026, 9, 8), pv5, juan, consumidorFinal, pesos, mgomez, "EMITIDA", null,
-                item(pCelular, 1));                                     //  42.000 MEDIO
+                item(pCelular, 1));
         // lperez: 3 facturas
         factura(8L, fecha(2026, 9, 12), pv2, maria, consumidorFinal, pesos, lperez, "EMITIDA", null,
-                item(pLampara, 3), item(pMartillo, 1));                 //  16.500 MEDIO
+                item(pLampara, 3), item(pMartillo, 1));
         factura(9L, fecha(2026, 9, 15), pv3, andes, responsableInscripto, pesos, lperez, "PENDIENTE", null,
-                item(pMartillo, 5));                                    //  30.000 MEDIO
+                item(pMartillo, 5));
         factura(10L, fecha(2026, 9, 20), pv1, juan, consumidorFinal, pesos, lperez, "ANULADA", fecha(2026, 9, 20),
-                item(pAuriculares, 1));                                 //   8.000 anulada
+                item(pAuriculares, 1));
     }
 
-    // =====================================================================
-    // Helpers
-    // =====================================================================
-
-    /** Un renglon a facturar: que precio de articulo y cuantas unidades. */
     private static class Item {
         private final ListaPrecioArticulo precio;
         private final double cantidad;
@@ -298,6 +282,6 @@ public class CargaDatos {
         f.setFechaModificacion(fechaEmision);
         f.setUsuarioCarga(usuarioCarga);
         f.setUsuarioModificacion(usuarioCarga);
-        em.persist(f); // los detalles entran por cascada
+        em.persist(f); // los detalles se guardan por cascada
     }
 }

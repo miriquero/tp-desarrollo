@@ -12,10 +12,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Ejecuta las 20 consultas del TP de JPQL e imprime los resultados por consola.
- * Antes de consultar carga los datos de prueba (solo la primera vez).
- */
 public class MainJPQL {
 
     private static final SimpleDateFormat FMT = new SimpleDateFormat("dd/MM/yyyy");
@@ -26,11 +22,11 @@ public class MainJPQL {
 
         try {
             new CargaDatos(em).cargarSiHaceFalta();
-            em.clear(); // las consultas leen desde la base, no desde lo que quedo en memoria
+            em.clear();
 
             ConsultasJPQL c = new ConsultasJPQL(em);
 
-            // ------------------------- Nivel 1 -------------------------
+            // Nivel 1
             titulo("NIVEL 1: Consultas Básicas y Proyecciones");
 
             consigna(1, "Todas las facturas de venta");
@@ -48,7 +44,7 @@ public class MainJPQL {
             c.facturasEntreFechas(fecha(2026, 8, 1), fecha(2026, 8, 31))
                     .forEach(f -> System.out.println("  " + factura(f)));
 
-            // ------------------------- Nivel 2 -------------------------
+            // Nivel 2
             titulo("NIVEL 2: Condicionales, Texto y Agregaciones");
 
             consigna(5, "Estado EMITIDA, importe > $10.000 y sin fecha de anulación");
@@ -69,7 +65,7 @@ public class MainJPQL {
             c.puntosDeVentaPorNumeros(Arrays.asList(1, 2, 5))
                     .forEach(pv -> System.out.println("  PV " + pv.getNumero() + " | " + pv.getDescripcion()));
 
-            // ------------------------- Nivel 3 -------------------------
+            // Nivel 3
             titulo("NIVEL 3: Navegación, JOINs y Subconsultas");
 
             consigna(10, "Facturas cargadas por el usuario 'lperez' (f.usuarioCarga.usuario)");
@@ -92,7 +88,7 @@ public class MainJPQL {
             consigna(14, "Facturas con importe mayor al promedio (subconsulta)");
             c.facturasSobrePromedio().forEach(f -> System.out.println("  " + factura(f)));
 
-            // ------------------------- Nivel 4 -------------------------
+            // Nivel 4
             titulo("NIVEL 4: GROUP BY y HAVING");
 
             consigna(15, "Por punto de venta: cantidad de facturas y total facturado");
@@ -110,7 +106,7 @@ public class MainJPQL {
                 System.out.printf("  %s | %.0f unidades | $ %,.2f%n", fila[0], (Double) fila[1], (Double) fila[2]);
             }
 
-            // ------------------------- Nivel 5 -------------------------
+            // Nivel 5
             titulo("NIVEL 5: EXISTS, NOT EXISTS y CASE WHEN");
 
             consigna(18, "Marcas con al menos un artículo facturado (EXISTS)");
@@ -130,7 +126,7 @@ public class MainJPQL {
         }
     }
 
-    // ---------------- helpers de impresion ----------------
+    // metodos para imprimir
 
     private static void titulo(String texto) {
         System.out.println();
